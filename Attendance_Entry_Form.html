@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Teacher Training Attendance - Data Entry</title>
+<style>
+:root{
+  --bg:#eef3f1;--card:#fff;--ink:#14231f;--mut:#5d6f69;--line:#d3dfda;--acc:#0f766e;--acc2:#0a5a54;
+  --accSoft:#e1f3f0;--err:#b42318;--errSoft:#fdecea;--ok:#1a7f45;--warn:#8a5a00;--warnSoft:#fff4d6;--shadow:0 2px 10px rgba(15,60,50,.08);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0e1715;--card:#16231f;--ink:#e7f1ee;--mut:#9bb0aa;--line:#2b3d38;--acc:#2bb3a6;--acc2:#4fd0c3;
+  --accSoft:#17332f;--err:#ff8a7e;--errSoft:#3a1d1a;--ok:#5fd08a;--warn:#f2c15a;--warnSoft:#3a2f12;--shadow:none}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;padding-bottom:40px}
+.wrap{max-width:720px;margin:0 auto;padding:0 14px}
+header{background:linear-gradient(135deg,#0a5a54,#0f766e 60%,#1a9a8c);color:#fff;padding:22px 0 26px;margin-bottom:16px}
+header h1{margin:0 0 4px;font-size:1.25rem;line-height:1.3;font-weight:700}
+header .sub{opacity:.92;font-size:.95rem}
+header .by{margin-top:10px;font-size:.9rem;font-weight:700;border-top:1px solid rgba(255,255,255,.3);padding-top:8px}
+.note{background:var(--warnSoft);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:.88rem;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 12px;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+label.l{display:block;font-weight:600;font-size:.9rem;margin-bottom:5px}
+label.l small{font-weight:400;color:var(--mut)}
+.req{color:var(--err)}
+input[type=text],input[type=tel],input[type=number],select,.pick{
+  width:100%;min-height:48px;padding:10px 12px;font:inherit;font-size:16px;color:var(--ink);background:var(--card);
+  border:1.5px solid var(--line);border-radius:10px;outline:none;appearance:none;-webkit-appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);
+  background-position:calc(100% - 20px) 21px,calc(100% - 14px) 21px;background-size:6px 6px;background-repeat:no-repeat;padding-right:36px}
+input:focus,select:focus,.pick:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--accSoft)}
+.pick{display:flex;align-items:center;justify-content:space-between;text-align:left;cursor:pointer;gap:8px}
+.pick .v{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick .ph{color:var(--mut)}
+.pick[disabled]{opacity:.55;cursor:not-allowed}
+.pick .car{color:var(--mut);font-size:.8rem}
+.name-in{text-transform:uppercase}
+.hasErr input,.hasErr select,.hasErr .pick{border-color:var(--err)}
+.err{display:none;color:var(--err);font-size:.82rem;margin-top:4px}
+.hasErr .err{display:block}
+.hint{color:var(--mut);font-size:.8rem;margin-top:4px}
+.chips{display:flex;gap:10px}
+.chips label{flex:1;position:relative}
+.chips input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.chips span{display:flex;align-items:center;justify-content:center;min-height:48px;border:1.5px solid var(--line);border-radius:10px;font-weight:600;background:var(--card)}
+.chips input:checked+span{background:var(--acc);color:#fff;border-color:var(--acc)}
+.chips input:focus-visible+span{box-shadow:0 0 0 3px var(--accSoft)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.row2{grid-template-columns:1fr}}
+.btns{display:flex;gap:10px;margin-top:4px}
+button{font:inherit;cursor:pointer}
+.btn{min-height:50px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:0 18px;font-weight:600}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff;flex:1;font-size:1.02rem}
+.btn.pri:hover{background:var(--acc2)}
+.btn[disabled]{opacity:.6;cursor:wait}
+.banner{display:none;background:var(--warnSoft);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:.9rem;margin-bottom:14px;align-items:center;gap:10px;justify-content:space-between}
+.banner.show{display:flex}
+.banner button{min-height:36px;border-radius:8px;border:1px solid currentColor;background:transparent;color:inherit;padding:0 12px;font-weight:600}
+.test{display:none;background:var(--errSoft);color:var(--err);border-radius:10px;padding:10px 12px;font-size:.85rem;margin-bottom:14px}
+.test.show{display:block}
+/* recent */
+.recent h2{display:flex;justify-content:space-between}
+.recent ul{list-style:none;margin:0;padding:0}
+.recent li{padding:9px 0;border-top:1px solid var(--line);font-size:.9rem;display:flex;justify-content:space-between;gap:10px}
+.recent li:first-child{border-top:0}
+.recent .s{color:var(--mut);font-size:.8rem}
+.recent .b{font-weight:700;color:var(--ok);white-space:nowrap}
+.recent .b.p{color:var(--warn)}
+.empty{color:var(--mut);font-size:.9rem}
+/* overlay */
+.ov{position:fixed;inset:0;background:rgba(5,20,16,.55);display:none;z-index:50;align-items:flex-end;justify-content:center}
+.ov.show{display:flex}
+@media(min-width:700px){.ov{align-items:center}}
+.sheet{background:var(--card);width:100%;max-width:560px;max-height:92vh;max-height:92dvh;border-radius:18px 18px 0 0;display:flex;flex-direction:column;overflow:hidden}
+@media(min-width:700px){.sheet{border-radius:18px}}
+.sh-h{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sh-h h3{margin:0;font-size:1.05rem}
+.x{border:0;background:transparent;font-size:1.6rem;line-height:1;color:var(--mut);min-width:40px;min-height:40px}
+.sh-b{padding:12px 16px;overflow:auto;flex:1;-webkit-overflow-scrolling:touch}
+.sh-f{padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);display:flex;gap:10px}
+.sh-f .btn{flex:1}
+.srch{margin-bottom:10px}
+.cnt{color:var(--mut);font-size:.82rem;margin-bottom:6px}
+.opts{list-style:none;margin:0;padding:0}
+.opts li{padding:13px 12px;border-radius:10px;border:1px solid var(--line);margin-bottom:8px;cursor:pointer;font-weight:600;font-size:.95rem;word-break:break-word}
+.opts li:active,.opts li:hover{background:var(--accSoft)}
+.opts li.sel{background:var(--acc);color:#fff;border-color:var(--acc)}
+.opts li.none{cursor:default;color:var(--mut);font-weight:400;text-align:center;border-style:dashed}
+table.pv{width:100%;border-collapse:collapse}
+table.pv th,table.pv td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:.93rem}
+table.pv th{width:38%;color:var(--mut);font-weight:600}
+table.pv td{font-weight:600;word-break:break-word}
+.pvmsg{background:var(--accSoft);color:var(--acc2);padding:9px 12px;border-radius:10px;margin-bottom:10px;font-size:.88rem}
+@media(prefers-color-scheme:dark){.pvmsg{color:var(--acc2)}}
+.fail{background:var(--errSoft);color:var(--err);padding:10px 12px;border-radius:10px;margin-top:10px;font-size:.9rem}
+.done{text-align:center;padding:14px 4px}
+.done .tick{width:62px;height:62px;border-radius:50%;background:var(--ok);color:#fff;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 10px}
+.done h3{margin:0 0 6px}
+.done p{margin:4px 0;color:var(--mut)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>Training of Teachers &mdash; Punjab Deworming Initiative (Round 5)</h1>
+  <div class="sub">Attendance Sheet &middot; Data Entry Form</div>
+  <div class="by">Rashid Mahmood Azam &middot; Assistant Education Officer &middot; Markaz Gujrat-VII</div>
+</div></header>
+
+<div class="wrap">
+  <div class="test" id="testBox"><b>Test mode:</b> the Google Sheet link is not set yet, so entries are NOT being saved. Paste the Web App URL into <code>SCRIPT_URL</code> inside this file.</div>
+  <div class="banner" id="pendBox"><span id="pendTxt"></span><button type="button" id="pendBtn">Send now</button></div>
+
+  <div class="note">Please ensure complete name as per CNIC, complete CNIC number and complete mobile phone number is provided, otherwise payment would not be processed.</div>
+
+  <form id="frm" novalidate autocomplete="off">
+    <div class="card">
+      <h2>Training</h2>
+      <div class="field" id="f-date">
+        <label class="l" for="date">Training Date (DD-MM-YYYY) <span class="req">*</span></label>
+        <select id="date"></select>
+        <div class="err"></div>
+      </div>
+      <div class="field" id="f-school">
+        <label class="l" for="schoolBtn">Name of School <span class="req">*</span> <small>(list changes with the date)</small></label>
+        <button type="button" class="pick" id="schoolBtn" disabled><span class="v ph">Select training date first</span><span class="car">&#9660;</span></button>
+        <div class="err"></div>
+      </div>
+      <div class="field" id="f-tehsil">
+        <label class="l" for="tehsil">Name of Tehsil <span class="req">*</span></label>
+        <select id="tehsil">
+          <option value="">Select tehsil</option>
+          <option>Gujrat</option><option>Kharian</option><option>S.A Gir</option>
+        </select>
+        <div class="err"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Teacher</h2>
+      <div class="field" id="f-name">
+        <label class="l" for="name">Name (As per CNIC) <span class="req">*</span></label>
+        <input type="text" id="name" class="name-in" autocomplete="off" autocapitalize="characters" placeholder="Full name as on CNIC">
+        <div class="err"></div>
+      </div>
+      <div class="row2">
+        <div class="field" id="f-gender">
+          <label class="l">Gender <span class="req">*</span></label>
+          <div class="chips">
+            <label><input type="radio" name="gender" value="M-01"><span>Male (M-01)</span></label>
+            <label><input type="radio" name="gender" value="F-02"><span>Female (F-02)</span></label>
+          </div>
+          <div class="err"></div>
+        </div>
+        <div class="field" id="f-level">
+          <label class="l" for="level">Level <span class="req">*</span></label>
+          <select id="level">
+            <option value="">Select level</option>
+            <option>Primary-01</option><option>Middle-02</option><option>Secondary-03</option><option>High Secondary-04</option>
+          </select>
+          <div class="err"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Contact</h2>
+      <div class="field" id="f-mobile">
+        <label class="l" for="mobile">Mobile Number <span class="req">*</span></label>
+        <input type="tel" id="mobile" inputmode="numeric" maxlength="11" placeholder="03XXXXXXXXX">
+        <div class="hint">11 digits, e.g. 03011000111</div>
+        <div class="err"></div>
+      </div>
+      <div class="field" id="f-cnic">
+        <label class="l" for="cnic">CNIC Number <span class="req">*</span></label>
+        <input type="tel" id="cnic" inputmode="numeric" maxlength="15" placeholder="XXXXX-XXXXXXX-X">
+        <div class="hint">13 digits &mdash; dashes are added automatically</div>
+        <div class="err"></div>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button type="button" class="btn" id="clearBtn">Clear</button>
+      <button type="submit" class="btn pri">Preview Entry &rarr;</button>
+    </div>
+  </form>
+
+  <div class="card recent" style="margin-top:18px">
+    <h2><span>Entered on this device</span><span id="recCnt"></span></h2>
+    <ul id="recList"></ul>
+    <div class="empty" id="recEmpty">No entries yet.</div>
+  </div>
+</div>
+
+<!-- School picker -->
+<div class="ov" id="schoolOv">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Select school">
+    <div class="sh-h"><h3>Select School</h3><button type="button" class="x" id="schoolX" aria-label="Close">&times;</button></div>
+    <div class="sh-b">
+      <input type="text" id="schoolQ" class="srch" placeholder="Type to search school..." autocomplete="off">
+      <div class="cnt" id="schoolCnt"></div>
+      <ul class="opts" id="schoolList"></ul>
+    </div>
+  </div>
+</div>
+
+<!-- Preview / result -->
+<div class="ov" id="pvOv">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Preview">
+    <div class="sh-h"><h3 id="pvTitle">Preview &mdash; check before submitting</h3><button type="button" class="x" id="pvX" aria-label="Close">&times;</button></div>
+    <div class="sh-b" id="pvBody"></div>
+    <div class="sh-f" id="pvFoot"></div>
+  </div>
+</div>
+
+<script>
+/* ===== SETTINGS ===== */
+const CONFIG = {
+  // Paste the Google Apps Script Web App URL here (ends with /exec)
+  SCRIPT_URL: ""
+};
+
+/* ===== Schools list (from "Schools list" sheet) : date -> schools ===== */
+const SCHOOLS = {"2026-11-19": ["GGPS JHANDAY WAL", "GGES THAKHER KHOKHRAN", "GGPS MEHMOOD CHIMNA", "GGES THATHA POUR", "GGPS SADHARY", "GGES PAKHOWAL", "GGPS CHACHIAN", "GGPS DITAY WAL", "GGPS CHAK SARO", "GMPS SAHDOKI", "GGPS BORA BANTH", "GMPS CHAR", "GGPS SAHIBLAKHU", "GMPS SAMAN PINDI", "GGPS DHARO KOT", "GMPS KHOKHER GHERBI", "GGES MUND", "GGPS DUDRAH GHARBI", "GGES SERVICE INDUSTRY", "GMPS SAHAN WAL", "GGPS QADIR COLONY", "GMPS SHEIK SUKHA", "GGPS SAROKI", "GGPS MEHLU", "GGPS MARARIAN", "GGPS GONDAL KOT", "GMPS REHMANIAN"], "2026-11-20": ["GGHS MUSLIM PARDA GUJRAT", "GGPS TIBI SIKHWAN", "GGPS QILA DAR", "GGPS JAMNA", "GMPS BUTTER", "GGPS GHAZI CHAK", "GGPS PINDI TATAR", "GGPS MALKOWALA", "GGPS MURAR PUR", "GGPS BALHAR", "GGPS CHAK MOBARAK", "GMPS TARA GARH", "GMPS KALAKI", "GGPS ALI PUR", "GGHSS DEONA", "GGHS DALI BANTH", "GGHS CHAK PINDI", "GGHS DHERO GHUNA GUJRAT", "GGHS DHOOL KHURD", "GGHS MUNICIPAL MODEL GUJRAT", "GGHS MADDRASATUL BINAT", "GGHS LORAI"], "2026-11-21": ["GGHS MOIN UD DIN PUR", "GGHS MALIK PUR CHARAH GUJRAT", "GGHS ISLAMIA MADINA GUJRAT", "GOVT GIRLS HIGH SCHOOL SHADIWAL", "GGHSS SOOK KALAN", "GGMHS SHADIWAL GUJRAT", "GGHS GILLANWALA", "GGHSS CHAK SADA", "GGHS BEOWALI", "GGHS CAPTAIN JAWAD ASLAM SHAHEED KALRA KALAN GUJRAT", "GGHS FEROZABAD GUJRAT", "GGHS GORALI", "GGHS ISLAM NAGAR", "GGHS ADOWAL", "GGHS MALHU KHOKHAR GUJRAT"], "2026-11-23": ["GHS ZAMINDAR GUJRAT", "GOVT.COMPREHENSIVE HIGHER SECONDARY SCHOOL GUJRAT", "GHS MUSLIM GUJRAT", "GHS CHRISTIAN GUJRAT", "GHS ISLAMIA GUJRAT", "GHS PAK ISLAMIA SHADIWAL", "GHSS KATHALA CHENAB", "GHS NAROWALI", "GHS MOIN UD DIN PUR", "GHS SHEIKH PUR", "GHS MILLAT BEOWALI", "GHS RA MADINA GUJRAT", "GHS DITTEWAL", "GOVT. PUBLIC HIGH SCHOOL NO.2 GUJRAT", "GOVT. PUBLIC H/S NO. 1 GUJRAT", "GHS ISLAMIA CHHANI DEONA", "GHS CHAK SADA GUJARAT", "GHS SOOK KALAN GUJRAT"]};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const dmy = iso => iso.split('-').reverse().join('-');
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+
+let school = '';
+let pending = store.get('att_pending', []);
+let recent = store.get('att_recent', []);
+let current = null;      // entry being previewed
+let sending = false;
+
+/* ===== Date dropdown ===== */
+(function(){
+  const sel = $('#date');
+  sel.innerHTML = '<option value="">Select training date</option>' +
+    Object.keys(SCHOOLS).sort().map(k => {
+      const wd = new Date(k + 'T00:00:00').toLocaleDateString('en-GB', {weekday:'long'});
+      return `<option value="${k}">${dmy(k)} (${wd}) - ${SCHOOLS[k].length} schools</option>`;
+    }).join('');
+})();
+
+$('#date').addEventListener('change', () => {
+  const d = $('#date').value;
+  if (!d || !SCHOOLS[d].includes(school)) setSchool('');
+  const b = $('#schoolBtn');
+  b.disabled = !d;
+  if (!d) setSchool('', true);
+  else if (!school) setSchool('');
+  clearErr('date');
+});
+
+function setSchool(v, noDate){
+  school = v;
+  const el = $('#schoolBtn .v');
+  if (v){ el.textContent = v; el.classList.remove('ph'); clearErr('school'); }
+  else { el.textContent = noDate ? 'Select training date first' : 'Tap to select school'; el.classList.add('ph'); }
+}
+
+/* ===== School picker ===== */
+function renderSchools(){
+  const d = $('#date').value;
+  const q = $('#schoolQ').value.trim().toLowerCase();
+  const toks = q.split(/\s+/).filter(Boolean);
+  const list = (SCHOOLS[d] || []).filter(n => { const l = n.toLowerCase(); return toks.every(t => l.includes(t)); });
+  $('#schoolCnt').textContent = `${list.length} of ${(SCHOOLS[d]||[]).length} schools - ${dmy(d)}`;
+  $('#schoolList').innerHTML = list.length
+    ? list.map(n => `<li data-v="${esc(n)}" class="${n===school?'sel':''}">${esc(n)}</li>`).join('')
+    : '<li class="none">No school matches</li>';
+}
+$('#schoolBtn').addEventListener('click', () => {
+  if (!$('#date').value) return;
+  $('#schoolQ').value = '';
+  renderSchools();
+  $('#schoolOv').classList.add('show');
+  setTimeout(() => $('#schoolQ').focus(), 150);
+});
+$('#schoolQ').addEventListener('input', renderSchools);
+$('#schoolList').addEventListener('click', e => {
+  const li = e.target.closest('li[data-v]');
+  if (!li) return;
+  setSchool(li.dataset.v);
+  $('#schoolOv').classList.remove('show');
+});
+$('#schoolX').addEventListener('click', () => $('#schoolOv').classList.remove('show'));
+$('#schoolOv').addEventListener('click', e => { if (e.target.id === 'schoolOv') $('#schoolOv').classList.remove('show'); });
+
+/* ===== Input formatting ===== */
+$('#mobile').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 11); clearErr('mobile'); });
+$('#cnic').addEventListener('input', e => {
+  const d = e.target.value.replace(/\D/g, '').slice(0, 13);
+  let o = d.slice(0, 5);
+  if (d.length > 5) o += '-' + d.slice(5, 12);
+  if (d.length > 12) o += '-' + d.slice(12);
+  e.target.value = o; clearErr('cnic');
+});
+$('#name').addEventListener('input', () => clearErr('name'));
+$('#tehsil').addEventListener('change', () => clearErr('tehsil'));
+$('#level').addEventListener('change', () => clearErr('level'));
+document.querySelectorAll('input[name=gender]').forEach(r => r.addEventListener('change', () => clearErr('gender')));
+
+/* ===== Validation ===== */
+function setErr(id, msg){ const f = $('#f-' + id); f.classList.add('hasErr'); f.querySelector('.err').textContent = msg; }
+function clearErr(id){ const f = $('#f-' + id); if (f) f.classList.remove('hasErr'); }
+
+function collect(){
+  const g = document.querySelector('input[name=gender]:checked');
+  return {
+    trainingDate: $('#date').value ? dmy($('#date').value) : '',
+    school,
+    tehsil: $('#tehsil').value,
+    name: $('#name').value.replace(/\s+/g, ' ').trim().toUpperCase(),
+    gender: g ? g.value : '',
+    level: $('#level').value,
+    mobile: $('#mobile').value.trim(),
+    cnic: $('#cnic').value.trim()
+  };
+}
+
+function validate(e){
+  let first = null;
+  const bad = (id, msg) => { setErr(id, msg); if (!first) first = id; };
+  ['date','school','tehsil','name','gender','level','mobile','cnic'].forEach(clearErr);
+  if (!e.trainingDate) bad('date', 'Select the training date');
+  if (!e.school) bad('school', 'Select the school');
+  if (!e.tehsil) bad('tehsil', 'Select the tehsil');
+  if (!e.name) bad('name', 'Enter the name as per CNIC');
+  else if (e.name.length < 3 || !/^[A-Z][A-Z .'\-]*$/.test(e.name)) bad('name', 'Use letters only (name as per CNIC)');
+  if (!e.gender) bad('gender', 'Select gender');
+  if (!e.level) bad('level', 'Select level');
+  if (!/^03\d{9}$/.test(e.mobile)) bad('mobile', 'Enter a complete 11-digit mobile number starting with 03');
+  if (!/^\d{5}-\d{7}-\d$/.test(e.cnic)) bad('cnic', 'Enter the complete 13-digit CNIC number');
+  if (first){
+    const el = $('#f-' + first);
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    return false;
+  }
+  return true;
+}
+
+/* ===== Preview ===== */
+function mobFmt(m){ return m.slice(0, 4) + '-' + m.slice(4); }
+function previewHTML(e){
+  const rows = [
+    ['Training Date', e.trainingDate], ['Name of School', e.school], ['Name of Tehsil', e.tehsil],
+    ['Name (As per CNIC)', e.name], ['Gender', e.gender === 'M-01' ? 'Male (M-01)' : 'Female (F-02)'], ['Level', e.level],
+    ['Mobile Number', mobFmt(e.mobile)], ['CNIC Number', e.cnic]
+  ];
+  return '<div class="pvmsg">Please check every detail carefully. Name, CNIC and mobile number must be correct or payment cannot be processed.</div>' +
+    '<table class="pv">' + rows.map(r => `<tr><th>${r[0]}</th><td>${esc(r[1])}</td></tr>`).join('') + '</table><div id="pvFail"></div>';
+}
+function showPreview(){
+  $('#pvTitle').textContent = 'Preview - check before submitting';
+  $('#pvBody').innerHTML = previewHTML(current);
+  $('#pvFoot').innerHTML = '<button type="button" class="btn" id="pvEdit">&larr; Edit</button><button type="button" class="btn pri" id="pvGo">Confirm &amp; Submit</button>';
+  $('#pvEdit').onclick = closePreview;
+  $('#pvGo').onclick = submitEntry;
+  $('#pvOv').classList.add('show');
+}
+function closePreview(){ if (!sending) $('#pvOv').classList.remove('show'); }
+$('#pvX').addEventListener('click', closePreview);
+
+$('#frm').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const e = collect();
+  if (!validate(e)) return;
+  e.id = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  current = e;
+  showPreview();
+});
+
+/* ===== Sending ===== */
+async function postEntry(e){
+  if (!CONFIG.SCRIPT_URL){ await sleep(500); return {ok:true, sno:'-', test:true}; }
+  const r = await fetch(CONFIG.SCRIPT_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(e)});
+  return await r.json();
+}
+
+async function submitEntry(){
+  if (sending) return;
+  sending = true;
+  const go = $('#pvGo'), ed = $('#pvEdit');
+  go.disabled = true; ed.disabled = true; go.textContent = 'Saving...';
+  $('#pvFail').innerHTML = '';
+  try{
+    const res = await postEntry(current);
+    if (res.ok){
+      addRecent(current, res.sno, false);
+      showDone(current, res);
+    } else if (res.duplicate){
+      $('#pvFail').innerHTML = '<div class="fail"><b>Duplicate entry.</b> ' + esc(res.message || 'This CNIC is already recorded for this training date.') + '</div>';
+      go.textContent = 'Confirm & Submit'; go.disabled = true; ed.disabled = false;
+    } else {
+      throw new Error(res.message || 'Server error');
+    }
+  } catch(err){
+    if (err instanceof TypeError || /Failed to fetch|Network|JSON|Unexpected/i.test(String(err.message))){
+      // No connection / unreadable reply: keep on this device and retry later (entry id makes retry safe)
+      pending.push(current); store.set('att_pending', pending);
+      addRecent(current, null, true);
+      showDone(current, {pending:true});
+      updatePending();
+    } else {
+      $('#pvFail').innerHTML = '<div class="fail"><b>Could not save:</b> ' + esc(err.message) + '</div>';
+      go.textContent = 'Try again'; go.disabled = false; ed.disabled = false;
+    }
+  }
+  sending = false;
+}
+
+function showDone(e, res){
+  $('#pvTitle').textContent = res.pending ? 'Saved on this device' : 'Saved';
+  const msg = res.pending
+    ? '<p>No internet right now. This entry is stored on this device and will be sent to the Google Sheet automatically when you are online (or tap <b>Send now</b> on the main page).</p>'
+    : (res.test ? '<p><b>Test mode</b> - not saved to Google Sheet (link not set).</p>'
+                : `<p>Attendance S.No. <b>${esc(res.sno)}</b> for <b>${esc(e.trainingDate)}</b> saved to Google Sheet.</p>`);
+  $('#pvBody').innerHTML = `<div class="done"><div class="tick">${res.pending ? '&#10003;' : '&#10003;'}</div><h3>${esc(e.name)}</h3>${msg}</div>`;
+  $('#pvFoot').innerHTML = '<button type="button" class="btn pri" id="pvNext">Add next teacher</button>';
+  $('#pvNext').onclick = nextEntry;
+}
+
+function nextEntry(){
+  $('#pvOv').classList.remove('show');
+  // keep date, school, tehsil, level for the next teacher of the same school
+  $('#name').value = ''; $('#mobile').value = ''; $('#cnic').value = '';
+  document.querySelectorAll('input[name=gender]').forEach(r => r.checked = false);
+  ['name','gender','mobile','cnic'].forEach(clearErr);
+  window.scrollTo({top:0, behavior:'smooth'});
+  setTimeout(() => $('#name').focus(), 350);
+}
+
+$('#clearBtn').addEventListener('click', () => {
+  if (!confirm('Clear the whole form?')) return;
+  $('#frm').reset();
+  setSchool('', true); $('#schoolBtn').disabled = true;
+  ['date','school','tehsil','name','gender','level','mobile','cnic'].forEach(clearErr);
+});
+
+/* ===== Recent list ===== */
+function addRecent(e, sno, isPending){
+  recent.unshift({id:e.id, name:e.name, school:e.school, date:e.trainingDate, sno, pending:isPending});
+  recent = recent.slice(0, 15);
+  store.set('att_recent', recent);
+  renderRecent();
+}
+function renderRecent(){
+  $('#recEmpty').style.display = recent.length ? 'none' : 'block';
+  $('#recCnt').textContent = recent.length ? recent.length + ' shown' : '';
+  $('#recList').innerHTML = recent.map(r =>
+    `<li><div>${esc(r.name)}<div class="s">${esc(r.school)} &middot; ${esc(r.date)}</div></div>` +
+    `<div class="b ${r.pending ? 'p' : ''}">${r.pending ? 'Pending' : (r.sno && r.sno !== '-' ? 'S.No ' + esc(r.sno) : 'Test')}</div></li>`).join('');
+}
+
+/* ===== Pending queue ===== */
+function updatePending(){
+  const b = $('#pendBox');
+  if (pending.length){ b.classList.add('show'); $('#pendTxt').textContent = pending.length + ' entr' + (pending.length > 1 ? 'ies' : 'y') + ' waiting to be sent to Google Sheet'; }
+  else b.classList.remove('show');
+}
+let flushing = false;
+async function flushPending(){
+  if (flushing || !pending.length || !CONFIG.SCRIPT_URL) return;
+  flushing = true;
+  $('#pendBtn').disabled = true;
+  try{
+    while (pending.length){
+      let res;
+      try{ res = await postEntry(pending[0]); } catch(e){ break; }
+      if (res.ok || res.duplicate){
+        const id = pending[0].id;
+        recent.forEach(r => { if (r.id === id){ r.pending = false; r.sno = res.sno || r.sno; } });
+        pending.shift();
+      } else break;
+    }
+  } finally {
+    store.set('att_pending', pending); store.set('att_recent', recent);
+    renderRecent(); updatePending(); $('#pendBtn').disabled = false; flushing = false;
+  }
+}
+$('#pendBtn').addEventListener('click', flushPending);
+window.addEventListener('online', flushPending);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape'){ $('#schoolOv').classList.remove('show'); closePreview(); }
+});
+
+/* init */
+if (!CONFIG.SCRIPT_URL) $('#testBox').classList.add('show');
+renderRecent(); updatePending(); flushPending();
+</script>
+</body>
+</html>
